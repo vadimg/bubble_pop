@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 import urllib2
 from xml.dom.minidom import parse
 import re
+import math
 
 from BeautifulSoup import BeautifulSoup
 
@@ -119,25 +120,30 @@ def makeForward(months, irates):
         return (((1.0+r2)**d2)/((1.0+r1)**d1))**(1.0/(d2-d1)) - 1
     return get
 
-rates2 = getZeroData()
-rates = getTreasuryData()
+def makeProb(s, forward):
+    def get(month):
+        r = forward(month)
+        if r is None:
+            return None
+        return 1-math.e**(-(r/s)**2)
+    return get
 
-print rates2
-print rates
+if __name__ == '__main__':
+    rates = getZeroData()
 
-irates = interpolate(rates)
-irates2 = interpolate(rates2)
-forward = makeForward(10*12, irates)
+    irates = interpolate(rates)
+    forward = makeForward(10*12, irates)
+    prob = makeProb(4, forward)
+    prob2 = makeProb(5, forward)
 
-import matplotlib.pyplot as plt
-x = range(1,361)
-y = map(irates, x)
-vals = zip(x,y)
+    import matplotlib.pyplot as plt
+    x = range(1,361)
+    y = map(irates, x)
+    vals = zip(x,y)
 
-fig = plt.figure()
-plt.plot(x, y)
-plt.plot(x, map(irates2, x))
-x = range(1,20*12+1)
-plt.plot(x, map(forward, x))
-plt.show()
+    fig = plt.figure()
+    x = range(1,20*12+1)
+    plt.plot(x, map(prob, x))
+    plt.plot(x, map(prob2, x))
+    plt.show()
 
