@@ -1,0 +1,15 @@
+{% extends "yearchartbase.html" %}
+
+{% block chart_header %}
+<script>
+function showForward() {
+    var months = eval($("#months").val());
+
+    var api = "future_rates/" + months;
+    drawChart(api);
+}
+</script>
+
+What the yield curve will look like <input id="months" type="text" onChange="showForward()" value="12" size="3"/> months into the future.
+{% end %}
+

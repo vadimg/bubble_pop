@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from rates import getZeroData
 from calcs import interpolate, makeForward, makeProb
 
-YEARS = 10
+YEARS = 7
 PROB_SCALE = 5
 
 
@@ -14,6 +14,6 @@ forward = makeForward(YEARS*12, irates)
 prob = makeProb(PROB_SCALE, forward)
 
 x = range(1,20*12+1)
-plt.plot(x, map(prob, x))
+plt.plot(x, map(irates, x))
 plt.show()
 

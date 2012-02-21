@@ -1,0 +1,18 @@
+{% extends "chartbase.html" %}
+
+{% block map_data %}
+<script>
+function mapData(data, opts) {
+    var now = Date.now();
+    var ret = [];
+    for(var i=0, l=data.length; i < l; ++i) {
+        var date = new Date(now);
+        date.setMonth(date.getMonth() + data[i][0]);
+        ret.push([date.getTime(), data[i][1]]);
+    }
+    opts.xaxis = { mode: "time" };
+    return ret;
+}
+</script>
+{% end %}
+

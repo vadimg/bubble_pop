@@ -1,0 +1,14 @@
+{% extends "chartbase.html" %}
+
+{% block map_data %}
+<script>
+function mapData(data) {
+    var ret = [];
+    for(var i=0, l=data.length; i < l; ++i) {
+        ret.push([data[i][0]/12, data[i][1]]);
+    }
+    return ret;
+}
+</script>
+{% end %}
+

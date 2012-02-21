@@ -1,0 +1,15 @@
+{% extends "datechartbase.html" %}
+
+{% block chart_header %}
+<script>
+function showForward() {
+    var months = eval($("#months").val());
+
+    var api = "forward_rates/" + months;
+    drawChart(api);
+}
+</script>
+
+Future yield of a <input id="months" type="text" onChange="showForward()" value="84" size="3"/> month zero-coupon bond.
+{% end %}
+
