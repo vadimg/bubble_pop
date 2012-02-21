@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<h1>How do I get these probabilities?</h1>
+
+<p>
+The idea behind this is that venture capital is currently a very attractive investment since risk-free yields (and thus all yields) on financial assets are very low. As the risk-free rate rises, risky venture capital will become a less attractive investment, and startups will have trouble raising money. They will then fail, and the bad publicity will hurt perceptions of startups, causing more money to leave the venture capital sector and more startup failures. Of course, the tech bubble might pop for various other reasons.
+</p>
+
+<p>
+In the true spirit of financial analysis, I make many simplifying assumptions of questionable validity to obtain a single number to predict a very complex event many years into the future.
+</p>
+
+<p>
+I assume that <a href="http://www.angelblog.net/Venture_Capital_Exit_Times.html">venture capital is invested for 7 years on average</a> and that the <a href="http://finance.fortune.cnn.com/2011/02/16/venture-capital-returns-more-in-short-term-less-in-long-term/">desired yearly return is 8%</a>.
+</p>
+
+<p>
+I compare the 7-year risk-free rate of return to the 8% desired return. The higher the risk-free rate, the higher the probability of the startup bubble popping. To get the risk-free rate of return, I use zero-coupon treasuries. To get the risk-free rate of return in the future, I use current market data to calculate future interest rates. This is called creating a forward interest rate curve.
+</p>
+
+<h2>Problems with my approach</h2>
+
+<p>
+<h3>Inflation</h3>
+The yields are not adjusted for inflation. I don’t know what the “correct” way to find the market’s prediction of future inflation rates. Does anyone know? Send me a tweet.
+</p>
+
+<p>
+<h3>Probability function</h3>
+Obviously the probability function is completely baseless. It’s there just to obtain a probability number from the forward rate data. Obviously the amount of money invested in web startups depends on more than just the risk-free interest rate, such as market perception, previous returns, attractiveness of available investments, inflation expectations, etc.
+</p>
+
+<p>
+Calculating a single probability number for something as complex as the amount of venture capital invested in the future is probably impossible. In order to get a true idea of the probability of the bubble popping, you need to look at all of the data and use your judgement to make an educated estimate.
+</p>
+
+<p>
+For the curious, the probability function is simply a <a href="http://en.wikipedia.org/wiki/Logistic_function">double logistic function</a> with scale factor of 5.
+</p>
+
+<p>
+<h3>Questionable data</h3>
+I get the zero-coupon treasury data from the <a href="http://online.wsj.com/mdc/public/page/2_3020-tstrips.html">wall street journal</a>. The yields for the longer-dated bonds don’t seem to be calculated correctly, and the prices seem to show arbitrage opportunities for some maturities.
+</p>
+
+{% end %}
