@@ -132,6 +132,6 @@ def update_cache(cb=None):
 
 if __name__ == "__main__":
     def listen():
-        application.listen(8888)
+        application.listen(3001)
     update_cache(listen)
     tornado.ioloop.IOLoop.instance().start()
