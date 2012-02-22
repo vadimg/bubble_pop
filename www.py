@@ -117,7 +117,7 @@ application = tornado.web.Application(
 )
 
 def update_cache(cb=None):
-    td = timedelta(seconds=10)
+    td = timedelta(hours=6)
     tornado.ioloop.IOLoop.instance().add_timeout(td, update_cache)
 
     def handle_resp(data):
