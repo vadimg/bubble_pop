@@ -1,12 +1,14 @@
 {% extends "base.html" %}
 
 {% block body %}
+<center>
 <h1>{{ title }}</h1>
 {% block chart_header %}
 {% end %}
 <div id="chart" style="width:600px;height:300px;"></div>
 {% block chart_footer %}{% end %}
 {% end %}
+</center>
 
 {% block extra_script %}
 {% block map_data %}

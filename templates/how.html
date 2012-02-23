@@ -24,12 +24,12 @@ I compare the 7-year risk-free rate of return to the 8% desired return. The high
 
 <p>
 <h3>Inflation</h3>
-The yields are not adjusted for inflation. I don’t know what the “correct” way to find the market’s prediction of future inflation rates. Does anyone know? Send me a tweet.
+The yields are not adjusted for inflation. I need to compare the yields of coupon-bearing treasuries with the yields of coupon-bearing inflation-adjusted treasuries to get the market's future inflation expectations, and then adjust the zero-coupon yields accordingly. This would have been too much work to do from the beginning, but I will do it eventually.
 </p>
 
 <p>
 <h3>Probability function</h3>
-Obviously the probability function is completely baseless. It’s there just to obtain a probability number from the forward rate data. Obviously the amount of money invested in web startups depends on more than just the risk-free interest rate, such as market perception, previous returns, attractiveness of available investments, inflation expectations, etc.
+Obviously the probability function is completely baseless. It’s there just to normalize the forward rate curve. Obviously the amount of money invested in web startups depends on more than just the risk-free interest rate, such as market perception, previous returns, attractiveness of available investments, inflation expectations, etc.
 </p>
 
 <p>
@@ -44,5 +44,11 @@ For the curious, the probability function is simply a <a href="http://en.wikiped
 <h3>Questionable data</h3>
 I get the zero-coupon treasury data from the <a href="http://online.wsj.com/mdc/public/page/2_3020-tstrips.html">wall street journal</a>. The yields for the longer-dated bonds don’t seem to be calculated correctly, and the prices seem to show arbitrage opportunities for some maturities.
 </p>
+
+<p>
+<h3>Predictions of rates far into the future</h3>
+The farther into the future predictions go, the less valid they become. Predicting anything far into the future is very error-prone. These predictions show the arbitrage-free predictions of the market, but executing arbitrage becomes much less attractive when the profits will only be realized far in the future. Therefore, the predictions of rates far into the future are pretty much completely invalid.
+</p>
+
 
 {% end %}

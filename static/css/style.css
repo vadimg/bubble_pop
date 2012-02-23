@@ -105,7 +105,14 @@ td { vertical-align: top; }
 
 /* my styles below */
 
+#content {
+    width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 footer {
+    text-align: center;
     margin-top: 20px;
 }
 
