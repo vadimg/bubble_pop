@@ -114,6 +114,7 @@ td { vertical-align: top; }
 footer {
     text-align: center;
     margin-top: 20px;
+    margin-bottom: 10px;
 }
 
 #nav-list {
@@ -123,5 +124,7 @@ footer {
 #nav-list li {
     display: inline;
     list-style-type: none;
-    padding-right: 10px;
+    padding-right: 5px;
+    padding-left: 5px;
+    font-size: .8em;
 }
