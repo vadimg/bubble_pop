@@ -17,7 +17,12 @@ I assume that <a href="http://www.angelblog.net/Venture_Capital_Exit_Times.html"
 </p>
 
 <p>
-I compare the 7-year risk-free rate of return to the 8% desired return. The higher the risk-free rate, the higher the probability of the startup bubble popping. To get the risk-free rate of return, I use zero-coupon treasuries. To get the risk-free rate of return in the future, I use current market data to calculate future interest rates. This is called creating a forward interest rate curve.
+I compare the future 7-year risk-free rate of return to the 8% desired return. The higher the risk-free rate, the higher the probability of the startup bubble popping.
+</p>
+
+<h3>How I get future interest rates</h3>
+<p>
+It's possible to calculate future interest rates from current interest rate data. The future interest rate is called the <a href="/forward_curve">forward rate</a>. I calculate it based off of the <a href="/zero_coupon_curve">zero-coupon treasury yields</a>. I use zero-coupon treasuries because they do not pay a coupon, so I don't need to worry about what rate the coupon payment will be reinvested at. The future rate is calculated assuming that no arbitrage exists - that is, if the rate were anything else, market participants could make trades that would guarantee them a risk-free profit. This becomes less accurate for predictions further into the future.
 </p>
 
 <h2>Problems with my approach</h2>
