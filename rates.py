@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from xml.dom.minidom import parse
+import urllib2
 import re
 
 from tornado.httpclient import AsyncHTTPClient
@@ -53,6 +54,67 @@ def getZeroData(cb):
 
     client = AsyncHTTPClient()
     client.fetch(url, handle_resp)
+
+def getTreasuryData():
+    feed = 'http://data.treasury.gov/feed.svc/DailyTreasuryYieldCurveRateData?$filter=month(NEW_DATE)%20eq%20{0}%20and%20year(NEW_DATE)%20eq%20{1}'
+
+    # TODO: handle case when 1st of month is on a weekend/holiday
+    now = datetime.now()
+    url = feed.format(now.month, now.year)
+
+    dom = parse(urllib2.urlopen(url))
+
+    return _parse_treasury_xml(dom)
+
+def getRealTreasuryData():
+    feed = 'http://data.treasury.gov/feed.svc/DailyTreasuryRealYieldCurveRateData?$filter=month(NEW_DATE)%20eq%20{0}%20and%20year(NEW_DATE)%20eq%20{1}'
+
+    # TODO: handle case when 1st of month is on a weekend/holiday
+    now = datetime.now()
+    url = feed.format(now.month, now.year)
+
+    dom = parse(urllib2.urlopen(url))
+
+    return _parse_treasury_xml(dom)
+
+
+def _parse_treasury_xml(dom):
+    def getText(node):
+            rc = []
+            for node in node.childNodes:
+                if node.nodeType == node.TEXT_NODE:
+                    rc.append(node.data)
+            return ''.join(rc)
+
+    entries = dom.getElementsByTagName('entry')
+
+    maxdate = None
+    maxdata = None
+    for entry in entries:
+        elems = entry.getElementsByTagName('content')[0].getElementsByTagName('m:properties')[0].childNodes
+
+        ret = []
+        for elem in elems:
+            name = elem.nodeName
+            if name == 'd:NEW_DATE':
+                date = datetime.strptime(getText(elem), '%Y-%m-%dT%H:%M:%S')
+            else:
+                m = re.match(r'd:\wC_(\d+)((MONTH)|(YEAR))$', name)
+                if m:
+                    months = int(m.group(1))
+                    if m.group(2) == 'YEAR':
+                        months *= 12
+                    try:
+                        rate = float(getText(elem))
+                        ret.append((months, rate))
+                    except ValueError:
+                        pass
+
+        if maxdate is None or maxdate < date:
+            maxdata = ret
+            maxdate = date
+
+    return maxdata
 
 def zeroYield(price, years):
     """
