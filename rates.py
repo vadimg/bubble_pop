@@ -5,9 +5,6 @@ import re
 from tornado.httpclient import AsyncHTTPClient
 from BeautifulSoup import BeautifulSoup
 
-def zeroYield(price, years):
-    return (100.0/price)**(1.0/years)-1
-
 def getZeroData(cb):
     now = datetime.now()
 
@@ -20,6 +17,12 @@ def getZeroData(cb):
         html = resp.body
         soup = BeautifulSoup(html)
         headings = soup.findAll('td', 'b14')[:2]
+
+        date_str = soup.find('div', 'tbltime').findAll('span')[-1].string
+        date_str = date_str.strip()
+        update_date = datetime.strptime(date_str, '%A, %B %d, %Y')
+        update_date = update_date.replace(hour=15)
+
         data = {}
         for item in headings:
             trs = item.parent.findNextSiblings('tr')
@@ -46,8 +49,17 @@ def getZeroData(cb):
 
         ret.sort(key=lambda x: x[0])
 
-        return cb(ret)
+        return cb(ret, update_date)
 
     client = AsyncHTTPClient()
     client.fetch(url, handle_resp)
+
+def zeroYield(price, years):
+    """
+    @param price price of the bond
+    @param years years to maturity
+    @return yield of the zero-coupon bond
+    """
+    return (100.0/price)**(1.0/years)-1
+
 

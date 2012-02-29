@@ -8,6 +8,7 @@ from rates import getZeroData
 from calcs import interpolate, makeForward, makeProb, makeFutureCurve
 
 ratesCache = None
+ratesCache_updated = None
 
 def mapzip(f, a):
     ret = []
@@ -75,28 +76,34 @@ class IndexHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("index.html",
                     title="Will the tech bubble pop?",
+                    updated=ratesCache_updated,
                     api="pop_probability")
 
 class HowHandler(tornado.web.RequestHandler):
     def get(self):
-        self.render("how.html", title="How I got these numbers :)")
+        self.render("how.html",
+                    title="How I got these numbers :)",
+                    updated=ratesCache_updated)
 
 class ZeroCurveHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("zero.html",
                     title="Zero Coupon Yield Curve",
+                    updated=ratesCache_updated,
                     api="zero_coupon_rates")
 
 class ForwardCurveHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("forward.html",
                     title="Forward Yield Curve",
+                    updated=ratesCache_updated,
                     api="forward_rates/84")
 
 class FutureCurveHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("future.html",
                     title="Future Yield Curve",
+                    updated=ratesCache_updated,
                     api="future_rates/12")
 
 
@@ -120,11 +127,13 @@ def update_cache(cb=None):
     td = timedelta(hours=6)
     tornado.ioloop.IOLoop.instance().add_timeout(td, update_cache)
 
-    def handle_resp(data):
+    def handle_resp(data, update_date):
         if data is None:
             return
         global ratesCache
+        global ratesCache_updated
         ratesCache = data
+        ratesCache_updated = update_date
         if cb:
             cb()
 
