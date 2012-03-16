@@ -1,14 +1,18 @@
-import tornado.ioloop
-import tornado.web
 import json
 import os
 from datetime import timedelta
+from collections import namedtuple
+
+import tornado.ioloop
+import tornado.web
+import asyncmongo
 
 from rates import getZeroData
 from calcs import interpolate, makeForward, makeProb, makeFutureCurve
 
-ratesCache = None
-ratesCache_updated = None
+Cache = namedtuple('Cache', ['rates', 'updated'])
+
+cache = Cache(rates=None, updated=None)
 
 def mapzip(f, a):
     ret = []
@@ -20,18 +24,18 @@ def mapzip(f, a):
 
 class RatesHandler(tornado.web.RequestHandler):
     def get(self):
-        self.write(json.dumps(ratesCache))
+        self.write(json.dumps(cache.rates))
 
 class ForwardRateHandler(tornado.web.RequestHandler):
     def get(self, months):
         months = int(months)
 
-        lastMonth = ratesCache[-1][0]
+        lastMonth = cache.rates[-1][0]
 
         if months >= lastMonth:
             return self.write("")
 
-        irates = interpolate(ratesCache)
+        irates = interpolate(cache.rates)
         forward = makeForward(months, irates)
 
         x = range(1, lastMonth - months + 1)
@@ -43,12 +47,12 @@ class FutureRatesHandler(tornado.web.RequestHandler):
     def get(self, months):
         months = int(months)
 
-        lastMonth = ratesCache[-1][0]
+        lastMonth = cache.rates[-1][0]
 
         if months >= lastMonth:
             return self.write("")
 
-        irates = interpolate(ratesCache)
+        irates = interpolate(cache.rates)
         forward = makeFutureCurve(months, irates)
 
         x = range(1, lastMonth - months + 1)
@@ -62,11 +66,11 @@ class ProbHandler(tornado.web.RequestHandler):
         YEARS = 7
         PROB_SCALE = 5
 
-        irates = interpolate(ratesCache)
+        irates = interpolate(cache.rates)
         forward = makeForward(YEARS*12, irates)
         prob = makeProb(5, forward)
 
-        lastMonth = ratesCache[-1][0]
+        lastMonth = cache.rates[-1][0]
         x = range(1, lastMonth - YEARS*12 + 1)
         ret = mapzip(prob, x)
 
@@ -76,34 +80,34 @@ class IndexHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("index.html",
                     title="Will the tech bubble pop?",
-                    updated=ratesCache_updated,
+                    updated=cache.updated,
                     api="pop_probability")
 
 class HowHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("how.html",
                     title="How I got these numbers :)",
-                    updated=ratesCache_updated)
+                    updated=cache.updated)
 
 class ZeroCurveHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("zero.html",
                     title="Zero Coupon Yield Curve",
-                    updated=ratesCache_updated,
+                    updated=cache.updated,
                     api="zero_coupon_rates")
 
 class ForwardCurveHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("forward.html",
                     title="Forward Yield Curve",
-                    updated=ratesCache_updated,
+                    updated=cache.updated,
                     api="forward_rates/84")
 
 class FutureCurveHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("future.html",
                     title="Future Yield Curve",
-                    updated=ratesCache_updated,
+                    updated=cache.updated,
                     api="future_rates/12")
 
 
@@ -130,10 +134,32 @@ def update_cache(cb=None):
     def handle_resp(data, update_date):
         if data is None:
             return
-        global ratesCache
-        global ratesCache_updated
-        ratesCache = data
-        ratesCache_updated = update_date
+        global cache
+
+        db = asyncmongo.Client(pool_id='mydb', host='127.0.0.1', port=27017, maxcached=10, maxconnections=50, dbname='interest_rates_hist')
+
+        def mongo_find_resp(response, error):
+            if error:
+                print error
+                return
+
+            # do nothing if data already exists for this time
+            if response:
+                return
+
+            def check_output(response, error):
+                if error:
+                    print error
+
+            db.zero_coupon.insert({
+                'time': update_date,
+                'data': data
+            }, callback=check_output)
+
+        db.zero_coupon.find({'time': update_date}, callback=mongo_find_resp)
+
+        cache = Cache(rates=data, updated=update_date)
+
         if cb:
             cb()
 
