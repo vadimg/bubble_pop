@@ -12,7 +12,7 @@ def getZeroData(cb):
 
     def handle_resp(resp):
         if resp.error:
-            return cb(None)
+            return cb(None, None)
 
         html = resp.body
         soup = BeautifulSoup(html)
